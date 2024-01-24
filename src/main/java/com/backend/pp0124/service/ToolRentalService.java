@@ -22,20 +22,19 @@ public class ToolRentalService {
     {
         ResponseData responseData = new ResponseData();
         PrintOperations printOperations = new PrintOperations();
-        String toolTypeName = ToolsCache.getInstance().getTools(requestPayLoad.getToolCode()).getToolType();
-        DateOperations dateOperations = new DateOperations();
-        LocalDate checkoutDate = LocalDate.parse(requestPayLoad.getCheckoutDate());
-        LocalDate dueDate = checkoutDate.plusDays(requestPayLoad.getDaysCount());
-
-
-        ToolType toolType = ToolTypeCache.getInstance().getToolType(toolTypeName);
-        short chargeDays = dateOperations.countNumberOfChargeableDays(checkoutDate, dueDate, toolType);
-        double preDiscountCharge = toolType.getDailyCharge() * chargeDays;
-        BigDecimal discount = new BigDecimal(preDiscountCharge * requestPayLoad.getDiscount() / 100);
-        BigDecimal discountCharge = discount.setScale(2, RoundingMode.HALF_UP);
-        BigDecimal totalCharge = new BigDecimal(preDiscountCharge - discountCharge.doubleValue());
-        BigDecimal finalCharge = totalCharge.setScale(2, RoundingMode.HALF_UP);
         try {
+            String toolTypeName = ToolsCache.getInstance().getTools(requestPayLoad.getToolCode()).getToolType();
+            DateOperations dateOperations = new DateOperations();
+            LocalDate checkoutDate = LocalDate.parse(requestPayLoad.getCheckoutDate());
+            LocalDate dueDate = checkoutDate.plusDays(requestPayLoad.getDaysCount());
+            ToolType toolType = ToolTypeCache.getInstance().getToolType(toolTypeName);
+            short chargeDays = dateOperations.countNumberOfChargeableDays(checkoutDate, dueDate, toolType);
+            double preDiscountCharge = toolType.getDailyCharge() * chargeDays;
+            BigDecimal discount = new BigDecimal(preDiscountCharge * requestPayLoad.getDiscount() / 100);
+            BigDecimal discountCharge = discount.setScale(2, RoundingMode.HALF_UP);
+            BigDecimal totalCharge = new BigDecimal(preDiscountCharge - discountCharge.doubleValue());
+            BigDecimal finalCharge = totalCharge.setScale(2, RoundingMode.HALF_UP);
+    
             responseData.setToolCode(requestPayLoad.getToolCode());
             responseData.setToolType(toolTypeName);
             responseData.setToolBrand(ToolsCache.getInstance().getTools(requestPayLoad.getToolCode()).getBrand());
