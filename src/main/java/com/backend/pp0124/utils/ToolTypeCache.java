@@ -2,15 +2,27 @@ package com.backend.pp0124.utils;
 
 import com.backend.pp0124.entity.ToolType;
 import org.springframework.stereotype.Component;
+
 import java.util.HashMap;
+import java.util.Map;
 
 @Component
 public class ToolTypeCache {
-    private static ToolTypeCache toolTypeCache;
-    private HashMap<String, ToolType> map = new HashMap<>();
+    private static ToolTypeCache instance;
+    private final Map<String, ToolType> map = new HashMap<>();
 
     private ToolTypeCache() {
-        // Replace the hardcoded values with a database call to get the values when it is the right time
+        initializeCache();
+    }
+
+    public static synchronized ToolTypeCache getInstance() {
+        if (instance == null) {
+            instance = new ToolTypeCache();
+        }
+        return instance;
+    }
+
+    private void initializeCache() {
         map.put("Ladder", ToolType.builder()
                 .toolType("Ladder")
                 .dailyCharge(1.99)
@@ -32,14 +44,6 @@ public class ToolTypeCache {
                 .weekendCharge(false)
                 .holidayCharge(false)
                 .build());
-    }
-    // This method helps with a effective way of singleton implementation
-    // This could be replaced with a better Cache as and when needed
-    public static synchronized ToolTypeCache getInstance() {
-        if (toolTypeCache == null) {
-            toolTypeCache = new ToolTypeCache();
-        }
-        return toolTypeCache;
     }
 
     public ToolType getToolType(String toolType) {
