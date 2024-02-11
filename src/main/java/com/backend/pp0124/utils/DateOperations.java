@@ -5,87 +5,42 @@ import com.backend.pp0124.entity.ToolType;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 
-
 public class DateOperations {
-    final short independenceDayMonth = 7;
-    final short independenceDayDate = 4;
-    final short laborDayMonth = 9;
-    final short iterationDaysCount = 1;
 
-    final short numberOfDaysInAWeek = 7;
-
+    private final short independenceDayMonth = 7;
+    private final short independenceDayDate = 4;
+    private final short laborDayMonth = 9;
+    private final short iterationDaysCount = 1;
+    private final short numberOfDaysInAWeek = 7;
 
     public short countNumberOfChargeableDays(LocalDate fromDate, LocalDate toDate, ToolType toolType) {
         short weekDaysCount = 0;
         LocalDate processDate = fromDate;
 
-        do {
-            //Holiday
-                if (isHoliday(processDate)) {
-                    if (toolType.isHolidayCharge() && !isWeekEnd(processDate)) {
-                        weekDaysCount++;
-                        processDate = processDate.plusDays(iterationDaysCount);
-                        continue;
-                    }
-                    else {
-                        // Independence Day Weekend Scenario
-                        if (processDate.getMonthValue() == independenceDayMonth
-                                && processDate.getDayOfMonth() == independenceDayDate)
-                        {
-                            if ((processDate.getDayOfWeek().equals(DayOfWeek.SATURDAY) && processDate.isAfter(fromDate))
-                                    || (processDate.getDayOfWeek().equals(DayOfWeek.SUNDAY) && processDate.isBefore(toDate))) {
-                                if (!toolType.isHolidayCharge()) {
-                                    processDate = processDate.plusDays(iterationDaysCount);
-                                    continue;
-                                }
-                            }
-
-                        }
-                    }
-                }
-
-            //Weekday
-            if (toolType.isWeekdayCharge() && !isWeekEnd(processDate)) {
-                if (isHoliday(processDate) && !toolType.isHolidayCharge()) {
-                    processDate = processDate.plusDays(1);
-                    continue;
-                }
+        while (!processDate.isAfter(toDate)) {
+            if (isWeekdayChargeable(processDate, toolType) || isWeekendChargeable(processDate, toolType)) {
                 weekDaysCount++;
-                processDate = processDate.plusDays(1);
-                continue;
             }
-            //weekend
-            if (toolType.isWeekendCharge() && isWeekEnd(processDate)) {
-                if (isHoliday(processDate) && toolType.isHolidayCharge()) {
-                    processDate = processDate.plusDays(1);
-                    continue;
-                }
-                weekDaysCount++;
-                processDate = processDate.plusDays(1);
-                continue;
-            }
-            processDate = processDate.plusDays(1);
-        } while (processDate.isBefore(toDate));
-         return weekDaysCount;
+            processDate = processDate.plusDays(iterationDaysCount);
+        }
+        return weekDaysCount;
+    }
+
+    private boolean isWeekdayChargeable(LocalDate localDate, ToolType toolType) {
+        return !isWeekEnd(localDate) && (toolType.isWeekdayCharge() || (toolType.isHolidayCharge() && !isHoliday(localDate)));
+    }
+
+    private boolean isWeekendChargeable(LocalDate localDate, ToolType toolType) {
+        return isWeekEnd(localDate) && (toolType.isWeekendCharge() || (toolType.isHolidayCharge() && !isHoliday(localDate)));
     }
 
     private boolean isWeekEnd(LocalDate localDate) {
-        if (localDate.getDayOfWeek().equals(DayOfWeek.SATURDAY) ||
-                localDate.getDayOfWeek().equals(DayOfWeek.SUNDAY))
-            return true;
-        else
-            return false;
+        return localDate.getDayOfWeek() == DayOfWeek.SATURDAY || localDate.getDayOfWeek() == DayOfWeek.SUNDAY;
     }
 
     private boolean isHoliday(LocalDate localDate) {
-        if ((localDate.getMonthValue() == independenceDayMonth
-                && localDate.getDayOfMonth() == independenceDayDate) ||
-                (localDate.getMonthValue() == laborDayMonth
-                        && localDate.getDayOfWeek().equals(DayOfWeek.MONDAY)
-                        && localDate.getDayOfMonth() <= numberOfDaysInAWeek)) {
-                return true;
-        } else {
-            return false;
-        }
+        return (localDate.getMonthValue() == independenceDayMonth && localDate.getDayOfMonth() == independenceDayDate) ||
+                (localDate.getMonthValue() == laborDayMonth && localDate.getDayOfWeek() == DayOfWeek.MONDAY &&
+                        localDate.getDayOfMonth() <= numberOfDaysInAWeek);
     }
 }
