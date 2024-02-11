@@ -20,20 +20,16 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, List<String>>> handleValidationErrors(MethodArgumentNotValidException ex) {
         List<String> errors = ex.getBindingResult().getFieldErrors()
-                .stream().map(FieldError::getDefaultMessage).collect(Collectors.toList());
-        return new ResponseEntity<>(getErrorsMap(errors), new HttpHeaders(), HttpStatus.BAD_REQUEST);
+                .stream()
+                .map(FieldError::getDefaultMessage)
+                .collect(Collectors.toList());
+        return ResponseEntity.badRequest().body(getErrorsMap(errors));
     }
 
-    @ExceptionHandler(Exception.class)
-    public final ResponseEntity<Map<String, List<String>>> handleGeneralExceptions(Exception ex) {
+    @ExceptionHandler({Exception.class, RuntimeException.class})
+    public ResponseEntity<Map<String, List<String>>> handleGeneralExceptions(Exception ex) {
         List<String> errors = Collections.singletonList(ex.getMessage());
-        return new ResponseEntity<>(getErrorsMap(errors), new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    @ExceptionHandler(RuntimeException.class)
-    public final ResponseEntity<Map<String, List<String>>> handleRuntimeExceptions(RuntimeException ex) {
-        List<String> errors = Collections.singletonList(ex.getMessage());
-        return new ResponseEntity<>(getErrorsMap(errors), new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(getErrorsMap(errors));
     }
 
     private Map<String, List<String>> getErrorsMap(List<String> errors) {
@@ -41,5 +37,4 @@ public class GlobalExceptionHandler {
         errorResponse.put("errors", errors);
         return errorResponse;
     }
-
 }
