@@ -22,3 +22,5 @@ The application is a point-of-sale tool for a store. It helps with renting out t
      c. ToolsCache: This creates a one time cache of all the Tools available for renting and this could make the DB calls when necessary. 
 
      d. ToolTypeCache: This creates a one time cache for all the Tool Type based pricing and its respective configurations. This could make the DB calls when necessary as well. 
+7. **Testing:** You can use Postman or commandline to test the API. Here is a sample payload to test the API. 
+   ![image](https://github.com/paulprabakar/pp0124/assets/8727540/e8da5fa8-95c6-468a-97fe-b1209a28dae2)

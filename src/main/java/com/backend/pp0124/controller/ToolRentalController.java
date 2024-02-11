@@ -12,15 +12,17 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/")
+@RequestMapping("/api")
 public class ToolRentalController {
+    private final ToolRentalService toolRentalService;
+
     @Autowired
-    ToolRentalService localToolRentalService;
+    public ToolRentalController(ToolRentalService toolRentalService) {
+        this.toolRentalService = toolRentalService;
+    }
 
     @PostMapping("/reservation")
-    public ResponseData saveEmployee(@RequestBody @Valid RequestPayLoad requestPayLoad) {
-        ToolRentalService toolRentalService = new ToolRentalService();
+    public ResponseData processToolRentalRequest(@RequestBody @Valid RequestPayLoad requestPayLoad) {
         return toolRentalService.processToolRentalRequest(requestPayLoad);
-
     }
 }

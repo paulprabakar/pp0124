@@ -6,9 +6,9 @@ import lombok.Data;
 @Data
 @Builder
 public class ToolType {
-    String toolType;
-    Double dailyCharge;
-    boolean weekdayCharge;
-    boolean weekendCharge;
-    boolean holidayCharge;
+    private String toolType;
+    private Double dailyCharge;
+    private boolean weekdayCharge;
+    private boolean weekendCharge;
+    private boolean holidayCharge;
 }

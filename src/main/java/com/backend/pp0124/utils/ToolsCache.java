@@ -3,13 +3,24 @@ package com.backend.pp0124.utils;
 import com.backend.pp0124.entity.Tools;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class ToolsCache {
-    private static ToolsCache toolsCache;
-    private HashMap<String, Tools> map = new HashMap<>();
+    private static ToolsCache instance;
+    private final Map<String, Tools> map = new HashMap<>();
 
-    private  ToolsCache() {
-        // Replace the hardcoded values with a database call to get the values when it is the right time
+    private ToolsCache() {
+        initializeCache();
+    }
+
+    public static synchronized ToolsCache getInstance() {
+        if (instance == null) {
+            instance = new ToolsCache();
+        }
+        return instance;
+    }
+
+    private void initializeCache() {
         map.put("CHNS", Tools.builder()
                 .toolCode("CHNS")
                 .toolType("Chainsaw")
@@ -31,17 +42,8 @@ public class ToolsCache {
                 .brand("Ridgid")
                 .build());
     }
-    // This method helps with a effective way of singleton implementation
-    // This could be replaced with a better Cache as and when needed
-    public static synchronized ToolsCache getInstance() {
-        if (toolsCache == null) {
-            toolsCache = new ToolsCache();
-        }
-        return toolsCache;
-    }
 
     public Tools getTools(String toolCode) {
         return map.get(toolCode);
     }
-
 }
