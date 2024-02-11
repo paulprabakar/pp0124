@@ -12,22 +12,24 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
-import java.time.ZonedDateTime;
-import java.util.Date;
 
 @Component
 public class ToolRentalService {
 
-    public ResponseData processToolRentalRequest(RequestPayLoad requestPayLoad)
-    {
+    public ResponseData processToolRentalRequest(RequestPayLoad requestPayLoad) {
         ResponseData responseData = new ResponseData();
         PrintOperations printOperations = new PrintOperations();
+        
         try {
-            String toolTypeName = ToolsCache.getInstance().getTools(requestPayLoad.getToolCode()).getToolType();
-            DateOperations dateOperations = new DateOperations();
+            String toolCode = requestPayLoad.getToolCode();
+            ToolsCache toolsCache = ToolsCache.getInstance();
+            ToolTypeCache toolTypeCache = ToolTypeCache.getInstance();
+            Tools tool = toolsCache.getTools(toolCode);
+            String toolType = tool.getToolType();
             LocalDate checkoutDate = LocalDate.parse(requestPayLoad.getCheckoutDate());
             LocalDate dueDate = checkoutDate.plusDays(requestPayLoad.getDaysCount());
-            ToolType toolType = ToolTypeCache.getInstance().getToolType(toolTypeName);
+            ToolType toolType = toolTypeCache.getToolType(toolType);
+            DateOperations dateOperations = new DateOperations();
             short chargeDays = dateOperations.countNumberOfChargeableDays(checkoutDate, dueDate, toolType);
             double preDiscountCharge = toolType.getDailyCharge() * chargeDays;
             BigDecimal discount = new BigDecimal(preDiscountCharge * requestPayLoad.getDiscount() / 100);
@@ -35,31 +37,25 @@ public class ToolRentalService {
             BigDecimal totalCharge = new BigDecimal(preDiscountCharge - discountCharge.doubleValue());
             BigDecimal finalCharge = totalCharge.setScale(2, RoundingMode.HALF_UP);
     
-            responseData.setToolCode(requestPayLoad.getToolCode());
-            responseData.setToolType(toolTypeName);
-            responseData.setToolBrand(ToolsCache.getInstance().getTools(requestPayLoad.getToolCode()).getBrand());
-            responseData.setRentalDays(requestPayLoad.getDaysCount().toString());
+            responseData.setToolCode(toolCode);
+            responseData.setToolType(toolType);
+            responseData.setToolBrand(tool.getBrand());
+            responseData.setRentalDays(String.valueOf(requestPayLoad.getDaysCount()));
             responseData.setCheckoutDate(checkoutDate.toString());
-            responseData.setDueDate(checkoutDate.plusDays(requestPayLoad.getDaysCount()).toString());
-            responseData.setDailyRentalCharge("$" + toolType.getDailyCharge().toString());
+            responseData.setDueDate(dueDate.toString());
+            responseData.setDailyRentalCharge("$" + String.valueOf(toolType.getDailyCharge()));
             responseData.setChargeDays(String.valueOf(chargeDays));
             responseData.setPreDiscountCharge("$" + String.valueOf(preDiscountCharge));
-            responseData.setDiscountPercent(requestPayLoad.getDiscount().toString() + "%");
-
+            responseData.setDiscountPercent(requestPayLoad.getDiscount() + "%");
             responseData.setDiscountAmount("$" + String.valueOf(discountCharge));
-            responseData.setFinalCharge("$" + String.valueOf(finalCharge.doubleValue()));
+            responseData.setFinalCharge("$" + String.valueOf(finalCharge));
+    
             printOperations.printRentalAgreement(responseData);
-            return responseData;
-
         } catch (Exception e) {
             e.printStackTrace();
-            responseData.setToolCode(requestPayLoad.getToolCode());
-            responseData.setRentalDays(requestPayLoad.getDaysCount().toString());
-            responseData.setCheckoutDate(checkoutDate.toString());
-            responseData.setDueDate(checkoutDate.plusDays(requestPayLoad.getDaysCount()).toString());
-            responseData.setDiscountPercent(requestPayLoad.getDiscount().toString() + "%");
-
-            return responseData;
+            // Handle exception
         }
+        
+        return responseData;
     }
 }
