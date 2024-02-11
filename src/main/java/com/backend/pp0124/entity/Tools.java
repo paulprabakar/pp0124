@@ -6,7 +6,7 @@ import lombok.Data;
 @Data
 @Builder
 public class Tools {
-    String toolCode;
-    String toolType;
-    String brand;
+    private String toolCode;
+    private String toolType;
+    private String brand;
 }
