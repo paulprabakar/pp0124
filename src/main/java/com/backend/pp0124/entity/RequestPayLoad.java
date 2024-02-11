@@ -1,26 +1,22 @@
 package com.backend.pp0124.entity;
 
-import lombok.Builder;
-import lombok.Data;
-
-
 import jakarta.validation.constraints.*;
 
 @Data
 @Builder
-public class RequestPayLoad {
-    @NotBlank(message = "Invalid ToolCode: Empty ToolCode")
-    @NotNull(message = "Invalid ToolCode: ToolCode is NULL")
+public class RequestPayload {
+    @NotBlank(message = "ToolCode cannot be blank")
+    @NotNull(message = "ToolCode cannot be null")
     String toolCode;
 
-    @Min(value = 1, message = "Invalid Discount: Rental day count is not 1 or greater")
+    @Min(value = 1, message = "DaysCount must be at least 1")
     Short daysCount;
 
-    @Min(value = 0, message = "Invalid Discount: Discount percent is not in the range 0-100")
-    @Max(value = 100, message = "Invalid Discount: Discount percent is not in the range 0-100")
+    @Min(value = 0, message = "Discount must be between 0 and 100")
+    @Max(value = 100, message = "Discount must be between 0 and 100")
     Short discount;
 
-    @NotBlank(message = "Invalid CheckoutDate: Empty CheckoutDate")
-    @NotNull(message = "Invalid CheckoutDate: CheckoutDate is NULL")
+    @NotBlank(message = "CheckoutDate cannot be blank")
+    @NotNull(message = "CheckoutDate cannot be null")
     String checkoutDate;
 }
